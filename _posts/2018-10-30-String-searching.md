@@ -148,6 +148,7 @@ $$
 \end{array}
 $$
 
+
 $$
 \footnotesize\text{Substring }S[:i] \text{ and character } C_i
 $$
@@ -168,7 +169,10 @@ $$
 \end{array}
 $$
 
-$$\footnotesize\text{Substring }S[:k_0] \text{ and character } C_i$$
+
+$$
+\footnotesize\text{Substring }S[:k_0] \text{ and character } C_i
+$$
 
 当前需要考察字符 $C_{k_1}$ 和 $C_i$。假如二者相等，那么令 $f(S)=k_1+1$，计算结束；否则 **不存在长度大于 $k_1$ 同时又满足条件的后缀** 。到目前为止，这个问题已经具有和上一步骤类似的形式，因此可以归纳出计算 $P$ 的一般办法：
 
