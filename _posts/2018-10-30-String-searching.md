@@ -144,11 +144,13 @@ $$
 
 $$
 \begin{array}{}
-    \overbrace{C_0C_1\cdots C_{k_0-1}}^{\text{Prefix of length } k_0}\underset{\big\Uarr}{C_{k_0}}\cdots \overbrace{C_{i-k_0}\cdots C_{i-1}}^{\text{Postfix of length }k_0} & \text{ and } & \underset{\big\Uarr}{C_i}
+    \overbrace{C_0C_1\cdots C_{k_0-1}}^{\text{Prefix of length } k_0}\mathbf{{C_{k_0}}}\cdots \overbrace{C_{i-k_0}\cdots C_{i-1}}^{\text{Postfix of length }k_0} & \text{ and } & \mathbf{C_i}
 \end{array}
 $$
 
-$$\footnotesize\text{Substring }S[:i] \text{ and character } C_i$$
+$$
+\footnotesize\text{Substring }S[:i] \text{ and character } C_i
+$$
 
 当前需要考察字符 $C_{k_0}$ 和 $C_{i}$。假如二者相等，那么令 $P[i]=k_0+1$ 就完事了。假如二者不相等，意味着 **不存在长度为$k\ge k_0+1$ 同时又满足条件的后缀**，这是由 $P$ 的定义所决定的；否则，可以模仿证明“某个问题可以用动态规划解决”，用“剪切和粘贴”(cut-and-paste)方法用这个 $k$ 值“覆盖” $k_0$。回到原来的问题上，下一步要考虑的字符串变成 $S[:k_0]$，
 
@@ -162,7 +164,7 @@ $$
 
 $$
 \begin{array}{}
-    \overbrace{C_0C_1\cdots C_{k_1-1}}^{\text{Prefix of length }k_1}\underset{\big\Uarr}{C_{k_1}}\cdots \overbrace{C_{k_0-k_1}\cdots C_{k_0-1}}^{\text{Postfix of length }k_1} & \text{ and } & \underset{\big\Uarr}{C_i}
+    \overbrace{C_0C_1\cdots C_{k_1-1}}^{\text{Prefix of length }k_1}\mathbf{C_{k_1}}\cdots \overbrace{C_{k_0-k_1}\cdots C_{k_0-1}}^{\text{Postfix of length }k_1} & \text{ and } & \mathbf{C_i}
 \end{array}
 $$
 
