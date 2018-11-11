@@ -9,13 +9,13 @@ tags:
 
 # Question
 
-给定两个字符串 $M,N,|M|\ge|N|$ ，找出子串 $N$ （又叫模式串，pattern）出现在 $M$ 中的位置。
+给定两个字符串 $M,N,\lvert M\rvert\ge\lvert N\rvert$ ，找出子串 $N$ （又叫模式串，pattern）出现在 $M$ 中的位置。
 
 # Solution
 
 ## Enumeration
 
-- 枚举所有来自 $M$ 的长度为 $|N|$ 的子串和 $N$ 逐一比对。
+- 枚举所有来自 $M$ 的长度为 $\lvert N\rvert$ 的子串和 $N$ 逐一比对。
 - 具体方法为把 $M$ 的每一个字符 $M[i]$ 当作起点，比较子串 $M[i:i+n]$ 和 $N$。
 - 最多比较 $m-n+1$ 个子串，而每次至多比对 $n$ 个字符，因此最坏情况下，时间复杂度为 $O((m-n+1)n)=O(mn)$
 
@@ -230,7 +230,7 @@ const char* find_substring(const char* M, const char* N) {
 
 ## Rolling hash
 
-首先，哈希函数 $H(S)$ 把模式串 $N$ 看作一个小于 $B^n(n=|N|)$ 的 $B$ 进制整数
+首先，哈希函数 $H(S)$ 把模式串 $N$ 看作一个小于 $B^n(n=\lvert N\rvert)$ 的 $B$ 进制整数
 
 $$
 H(N)=A_0\cdot B^{n-1}+A_1\cdot B^{n-2}+\cdots+A_{n-2}\cdot B^1+A_{n-1}\cdot B^{0}
