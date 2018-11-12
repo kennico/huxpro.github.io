@@ -102,7 +102,7 @@ const char* find_substring(const char* M, const char* N) {
 1. $i$ 向后移动更长的距离；
 2. 减少重复比对 $M$ 中字符的次数。
 
-上述两个目标其实可以用同一个方法做到。用 $M'$ 表示子串 $M[i:i+n]$。$M'[j]$ 字符匹配失败意味着前面 $j$ 个字符(即子串 $M'[:j]$ )匹配成功；在这个时候如果可以将 $i$ 移动 $j-k$ 个距离，就意味着 $M'[:j]$ 的真后缀(proper suffix) $M'[-k:]$ 和真前缀(proper prefix) $M'[:k]$ 相同。
+上述两个目标其实可以用同一个方法做到。用 $M'$ 表示子串 $M[i:i+n]$。$M'[j]$ 字符匹配失败意味着前面 $j$ 个字符(即子串 $M'[:j]$ )匹配成功；在这个时候如果可以将 $i$ 移动 $j-k$ 个距离，就意味着 $M'[:j]$ 的**真后缀**(proper suffix) $M'[-k:]$ 和**真前缀**(proper prefix) $M'[:k]$ 相同。
 
 $$
 \begin{array}{}
@@ -134,26 +134,20 @@ $$
 
 ### Prefix and postifx
 
-用 $P[i]$ 表示以 $S[i]$ 结尾的、同时也是 $S$ 的真前缀的子串的最大长度。现在的要计算的是 $P[i]$ ，要考虑的字符串是前缀 $S[:i]$，
+用 $P[i]$ 表示以 $S[i]$ 结尾的(真后缀)、同时也是 $S$ 的真前缀的子串的最大长度，即上文提到的 $k$ 值。当前要计算是 $P[i]$ ，考虑字符串前缀 $S[:i]$
 
 $$
 C_0C_1\cdots C_{i-1}
 $$
 
-已知 $P[i-1]=k_0$，那么
+已知 $P[i-1]=k_0$，即
 
 $$
-\begin{array}{}
-    \overbrace{C_0C_1\cdots C_{k_0-1}}^{\text{Prefix of length } k_0}\mathbf{{C_{k_0}}}\cdots \overbrace{C_{i-k_0}\cdots C_{i-1}}^{\text{Postfix of length }k_0} & \text{ and } & \mathbf{C_i}
-\end{array}
+\overbrace{C_0C_1\cdots C_{k_0-1}}^{\text{Prefix of length } k_0}C_{k_0}\cdots \overbrace{C_{i-k_0}\cdots C_{i-1}}^{\text{Postfix of length }k_0}
 $$
 
 
-$$
-\footnotesize\text{Substring }S[:i] \text{ and character } C_i
-$$
-
-当前需要考察字符 $C_{k_0}$ 和 $C_{i}$。假如二者相等，那么令 $P[i]=k_0+1$ 就完事了。假如二者不相等，意味着 **不存在长度为$k\ge k_0+1$ 同时又满足条件的后缀**，这是由 $P$ 的定义所决定的；否则，可以模仿证明“某个问题可以用动态规划解决”，用“剪切和粘贴”(cut-and-paste)方法用这个 $k$ 值“覆盖” $k_0$。回到原来的问题上，下一步要考虑的字符串变成 $S[:k_0]$，
+考察字符 $C_{k_0}$ 和 $C_{i}$：假如相等，那么令 $P[i]=k_0+1$ 就完事了；假如二者不相等，意味着 **不存在长度为$k\ge k_0+1$ 同时又满足条件的后缀**，这是由 $P$ 的定义所决定的；否则，可以模仿证明“某个问题可以用动态规划解决”，用“剪切和粘贴”(cut-and-paste)方法用这个 $k$ 值“覆盖” $k_0$。回到原来的问题上，下一步要考虑的字符串变成 $S[:k_0]$，
 
 $$
 \begin{array}{}
@@ -164,14 +158,7 @@ $$
 而且已知 $P[k_0-1]=k_1$，
 
 $$
-\begin{array}{}
-    \overbrace{C_0C_1\cdots C_{k_1-1}}^{\text{Prefix of length }k_1}\mathbf{C_{k_1}}\cdots \overbrace{C_{k_0-k_1}\cdots C_{k_0-1}}^{\text{Postfix of length }k_1} & \text{ and } & \mathbf{C_i}
-\end{array}
-$$
-
-
-$$
-\footnotesize\text{Substring }S[:k_0] \text{ and character } C_i
+    \overbrace{C_0C_1\cdots C_{k_1-1}}^{\text{Prefix of length }k_1}C_{k_1}\cdots \overbrace{C_{k_0-k_1}\cdots C_{k_0-1}}^{\text{Postfix of length }k_1}
 $$
 
 当前需要考察字符 $C_{k_1}$ 和 $C_i$。假如二者相等，那么令 $f(S)=k_1+1$，计算结束；否则 **不存在长度大于 $k_1$ 同时又满足条件的后缀** 。到目前为止，这个问题已经具有和上一步骤类似的形式，因此可以归纳出计算 $P$ 的一般办法：
@@ -186,7 +173,7 @@ $$
 
 ### Partial Match Table
 
-结合前面对算法的分析，在 $M[i+j]$ 和 $N[j]$ 匹配失败的时候，下一步匹配的起始位置 $i$ 变为 $i+j-P[j-1]$。由于给定了模式 $N$ 之后 $j-P[j-1]$ 是固定不变的，这部分也可以事先计算。
+结合前面对算法的分析，在 $M[i+j]$ 和 $N[j]$ 匹配失败的时候，下一步匹配的起始位置 $i$ 变为 $i+j-P[j-1]$。由于给定了模式 $N$ 之后 $j-P[j-1]$ 是固定不变的，这部分可以事先计算。
 
 ### Implementation
 
@@ -236,7 +223,7 @@ const char* find_substring(const char* M, const char* N) {
 
 ## Rolling hash
 
-首先，哈希函数 $H(S)$ 把模式串 $N$ 看作一个小于 $B^n(n=\lvert N\rvert)$ 的 $B$ 进制整数
+首先，哈希函数 $H(N)$
 
 $$
 H(N)=A_0\cdot B^{n-1}+A_1\cdot B^{n-2}+\cdots+A_{n-2}\cdot B^1+A_{n-1}\cdot B^{0}
@@ -248,7 +235,7 @@ $$
 H(M'_0)=C_0\cdot B^{n-1}+C_1\cdot B^{n-2}+\cdots+C_{n-2}\cdot B^1+C_{n-1}\cdot B^{0}
 $$
 
-因此，匹配子串和模式串变成了比较二者的哈希值；搜索模式串变成了枚举所有子串并比较子串和模式串的哈希值。但是上一个子串 $M'_0$ 匹配失败后，下一个子串 $M'_1$ 的哈希值不必从第一个字符 $C_1$ 重新计算，这是因为
+因此，匹配子串和模式串变成了比较二者的哈希值；搜索模式串变成了枚举所有子串并比较子串和模式串的哈希值。但重点是上一个子串 $M'_0$ 匹配失败后，下一个子串 $M'_1$ 的哈希值不必从第一个字符 $C_1$ 重新计算，这是因为
 
 $$
 \begin{aligned}
@@ -265,7 +252,11 @@ $$
 H(M'_1)\equiv B\cdot H(M'_0) + C_n\pmod {B^n}
 $$
 
-因为 $H(S)\lt B^n$，这意味着 $H(M'_1)$ 可以从 $H(M'_0)$ 和下一个字符 $C_n$ 计算得到。其实从数位和进制上就能看出端倪：相当于将 $H(M'_0)$ 向左移动 $1$ 个数位、加上最低位然后扔掉最高位。
+因为 $H(S)\lt B^n$，这意味着 $H(M'_1)$ 可以从 $H(M'_0)$ 和下一个字符 $C_n$ 计算得到。
+
+假如选择一个整数 $B\gt \max{\{C_i\}}$，那么 $H(M_0')$ 的值就相当于一个 $B$ 进制的整数，计算 $H(M_1')$ 的工作就变成了将 $H(M'_0)$ 向左移动 $1$ 个数位、加上最低位然后扔掉最高位。
+
+下面的代码来自 [LeetCode Implement strStr()](https://leetcode.com/problems/implement-strstr/)，在这里 $B=47$。
 
 ```cpp
 int strStr(string a, string b) {
@@ -290,4 +281,4 @@ int strStr(string a, string b) {
 }
 ```
 
-这个答案来自 [LeetCode Implement strStr()](https://leetcode.com/problems/implement-strstr/)，它把字符串视为一个用47进制表示的整数。然而需要注意的是，如果哈希值超过`unsigned int`的最大值，就要对哈希值进行取模运算，因此也需要对具有同一哈希值的字符串进行比较。
+然而，在实际应用中应当注意到哈希值可能会超过整数类型的最大值；对于无符号整数而言将发生上溢，这相当于自动进行了一次取模运算，毫无疑问增加了发生哈希冲突的概率。因此为了防止哈希冲突，需要对具有同一哈希值的字符串进行比较(比如 `strncmp`)。
