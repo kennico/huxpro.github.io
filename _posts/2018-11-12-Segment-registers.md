@@ -26,7 +26,10 @@ call dword ptr ds:[<&__p___argc>]
 
 连续四个字节的内容为 `E0EA370F`。这四个字节表示另一个地址`0x0F37EAE0`；这个地址才是函数 `__p___argc()` 第一条指令的地址。
 
-这类`call`指令不使用直接地址，也许是出于共享内存的考虑。而至于为什么`call`指令要带上段寄存器`ds`，可能是编译器认为这样做可以产生长度更短的程序。此外，当前指令和函数 `__p___argc()` 的代码并不属于同一个数据段：前者位于 `compiled-snippet.exe` 的 `.text` 段，`0x00F6B180` 属于 `.idata` 段；而函数 `__p___argc()` 位于 `ucrtbase.dll` 的 `.text` 段。
+这类`call`指令不使用直接地址，也许是出于共享内存的考虑。而至于为什么`call`指令要带上段寄存器`ds`，可能是编译器认为这样做可以产生长度更短的程序。
+
+
+此外，当前指令和函数 `__p___argc()` 的代码并不属于同一个数据段：前者位于 `compiled-snippet.exe` 的 `.text` 段，`0x00F6B180` 属于 `.idata` 段；而函数 `__p___argc()` 位于 `ucrtbase.dll` 的 `.text` 段。但在这里 `ds` 的值并不对应 `ucrtbase.dll` 的 `.text` 段，而应该对应 `compiled-snippet.exe` 的 `.idata`段。
 
 
 然而这个程序将 4GB 内存看作一个大数组，已经不需要按照“段寄存器+段内位移”去产生目标地址。段内位移`0x00F6B180`已经是一个4字节 32-bit 虚拟地址。段寄存器的另一个作用体现为向后兼容性(backward compatibility)，即为旧硬件编写的程序仍然可以运行新硬件上。了解相关硬件的 [发展历史](https://en.wikipedia.org/wiki/X86_memory_segmentation) 对理解这种向后兼容性有所帮助。
