@@ -36,7 +36,7 @@ call dword ptr ds:[<&__p___argc>]
 
 ## Real mode in Intel 8086
 
-现在大众所说的“x86”指令集架构正是源于 Intel 8086。准确的来讲，“x86”并不能和“32位”画上等号。Intel 8086 是一个 16-bit 的处理器，寄存器的长度都是16位。特别地， 8086 包含了四个 **段寄存器** CS, DS, ES 和 SS。
+现在大众所说的“x86”指令集架构正是源于 Intel 8086。准确的来讲，“x86”并不能和“32位”画上等号。Intel 8086 是一个 16-bit 的处理器，寄存器的长度都是16位。特别地， 8086 包含了四个 **段寄存器** `cs`(code segment register), `ds`(data segment register), `es`(extra segment register) 和 `ss`(stack segment register)。
 
 然而8086的外部却有 20 条地址总线。因此 8086 有特别的寻址技巧：
 
@@ -57,15 +57,15 @@ Intel 80286 的仍然是 16-bit 的处理器，但是其外部有24条地址总�
 
 ## Intel 80386
 
-80386 是一个32-bit 的处理器，直到现在 80386 架构指令集仍然是占据主流。现在有的应用程序按照不同指令集架构分发不同版本，其中某些版本带有的 i386 字样后缀即表示 Intel 80386。
+80386 是一个32-bit 的处理器，直到现在 80386 架构指令集仍然占据主流。现在有的应用程序按照不同指令集架构分发不同版本，其中某些版本带有的 i386 字样后缀即表示 Intel 80386。
 
 在 80386 段描述符表中，表项的段起始地址的长度增加到32bits，段内位移也增加到32bits。直到 80386 之前，应用程序都能直接按照物理地址访问内存。但是 80386 增加了分页单元，将其作为分段单元和地址总线之间的中间人。页和段不同：页的大小是固定的而且对程序员透明。如果启用分页单元，段内的地址（段的起始地址和段内位移）只能是虚拟地址；最终由分页单元将虚拟地址翻译为物理地址。此外 80386 还引入另外两个通用的 16-bit 段寄存器 FS 和 GS，在 Linux 和 Windows 下的用途不同。
 
 到了现在，段寄存器仍然可以在指令中显式地指定，但在更多的情况下是被 **隐式** 地使用的。比如
 
-1. 所有指令都由 CPU 从 CS 所指定的代码段中取得；
-2. 大部分内存引用都源自 DS 指定的数段；
+1. 所有指令都由 CPU 从 `cs` 所指定的代码段中取得；
+2. 大部分内存引用都源自 `ds` 指定的数段；
 3. 栈的操作(e.g. `push` and `pop` 指令和 `(e)sp` and `(e)bp` 寄存器)
 4. [字符串指令](http://www.plantation-productions.com/Webster/www.artofasm.com/Linux/HTML/StringInstructions.html)
 
-现在我们所熟知的操作系统，比如 Linux，实现了 [平面存储器模式(Flat memory model)](https://en.wikipedia.org/wiki/X86_memory_segmentation#Practices)，将 CS 和 DS 设置为 0；由段内位移直接产生虚拟地址。
+现在我们所熟知的操作系统，比如 Linux，实现了 [平面存储器模式(Flat memory model)](https://en.wikipedia.org/wiki/X86_memory_segmentation#Practices)，将 `cs` 和 `ds` 设置为 0；由段内位移直接产生虚拟地址。
