@@ -59,7 +59,9 @@ Intel 80286 的仍然是 16-bit 的处理器，但是其外部有24条地址总�
 
 80386 是一个32-bit 的处理器，直到现在 80386 架构指令集仍然占据主流。现在有的应用程序按照不同指令集架构分发不同版本，其中某些版本带有的 i386 字样后缀即表示 Intel 80386。
 
-在 80386 段描述符表中，表项的段起始地址的长度增加到32bits，段内位移也增加到32bits。直到 80386 之前，应用程序都能直接按照物理地址访问内存。但是 80386 增加了分页单元，将其作为分段单元和地址总线之间的中间人。页和段不同：页的大小是固定的而且对程序员透明。如果启用分页单元，段内的地址（段的起始地址和段内位移）只能是虚拟地址；最终由分页单元将虚拟地址翻译为物理地址。此外 80386 还引入另外两个通用的 16-bit 段寄存器 FS 和 GS，在 Linux 和 Windows 下的用途不同。
+在 80386 段描述符表中，表项的段起始地址的长度增加到32bits，段内位移也增加到32bits。直到 80386 之前，应用程序都能直接按照物理地址访问内存。但是 80386 增加了分页单元，将其作为分段单元和地址总线之间的中间人。页和段不同：页的大小是固定的而且对程序员透明。如果启用分页单元，段内的地址（段的起始地址和段内位移）只能是虚拟地址；最终由分页单元将虚拟地址翻译为物理地址。此外 80386 还引入另外两个通用的 16-bit 段寄存器 `fs` 和 `gs` ，在 Linux 和 Windows 下的用途不同。
+
+Windows 通过段寄存器 `fs` 访问线程信息块(TIB, Thread Information Block, aka TEB, [Thread Environment Block](https://en.wikipedia.org/wiki/Win32_Thread_Information_Block))。这是 Windows 用来实现线程局部存储(TLS, [Thread-local storage](https://en.wikipedia.org/wiki/Thread-local_storage#Windows_implementation))的方式。比如通过段寄存器 `fs:[0x30]`(偏移0x30个字节) 得到当前线程所属进程的 PEB([Process Environment Block](https://en.wikipedia.org/wiki/Process_Environment_Block)) 结构体的地址。
 
 到了现在，段寄存器仍然可以在指令中显式地指定，但在更多的情况下是被 **隐式** 地使用的。比如
 
