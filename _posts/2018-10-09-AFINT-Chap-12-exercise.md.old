@@ -1,0 +1,203 @@
+# Exercises
+
+## 12.3
+
+已知素数 $p$。将以下求和的结果
+
+$$
+S=1+\frac{1}{2}+\frac{1}{3}+\frac{1}{4}+\ldots+\frac{1}{p-1}
+$$
+
+写成最简分数 $S=\dfrac{A_p}{B_p}$。问：
+
+### (a) 
+
+- *找出 $A_p\pmod p$ 的值并证明。*
+
+$$
+\begin{aligned}
+    S&=1+\frac{1}{2}+\frac{1}{3}+\frac{1}{4}+\ldots+\frac{1}{p-1}\\
+    &=\dfrac{1}{(p-1)!}\cdot(1+\frac{1}{2}+\frac{1}{3}+\frac{1}{4}+\ldots+\frac{1}{p-1})\times (p-1)!\\
+    &=\frac{1}{(p-1)!}\cdot\displaystyle\sum_{i=1}^{p-1}\frac{(p-1)!}{i}
+\end{aligned}
+$$
+
+令 $A'=\sum\frac{(p-1)!}{i}$，$B=(p-1)!$，那么 $S=\frac{A'}{B}$。首先，$A'$ 毫无疑问是一个整数；其次，可用反证法证明 $\frac{(p-1)!}{i}(1\le i\le p-1)$ 两两模 $p$ 不同余，这样的整数有 $p-1$ 个而且和 $p$ 互质，不难看出由 $\frac{(p-1)!}{i}$ 构成的集合是一个模 $p$ 缩系。所以
+
+$$
+A'\equiv\displaystyle\sum_{i=1}^{p-1}\frac{(p-1)!}{i}\equiv1+2+\ldots+p-1\equiv p\cdot\frac{p-1}{2}\equiv 0\pmod p
+$$
+
+所以 $p\mid A'$。这表示分子 $A'$ 包含一个因子 $p$；然而 $p$ 不能整除分母 $(p-1)!$。因此写作精简分数形式后的分子 $A_p$ 必然包含一个 $p$ 作为其因子，即 $p\mid A_p$。
+
+接着再来看另一个证明。[参考资料](https://www.math.uci.edu/~tchoi/notes/wolstenholme.pdf) 的直接从 $A_p$ 的形式入手，而且最后 $A_p$ 的形式对解决问题(b)有帮助。证明如下
+
+$$
+\begin{aligned}
+    &1+\frac{1}{2}+\frac{1}{3}+\frac{1}{4}+\ldots+\frac{1}{p-1}\\
+    =&\Big(\frac{1}{1}+\frac{1}{p-1}\Big)+\Big(\frac{1}{2}+\frac{1}{p-2}\Big)+\ldots+\Bigg(\frac{1}{\frac{p-1}{2}}+\frac{1}{p-\frac{p-1}{2}}\Bigg)\\
+    =&\frac{p}{1(p-1)}+\frac{p}{2(p-2)}+\ldots+\frac{p}{\frac{p-1}{2}\Big(p-\frac{p-1}{2}\Big)}\\
+    =&p\Big(\frac{1}{1(p-1)}+\frac{1}{2(p-2)}+\ldots+\frac{1}{\frac{p-1}{2}\Big(p-\frac{p-1}{2}\Big)}\Big)\\
+    =&\frac{1}{(p-1)!}\cdot p\displaystyle\sum_{i=1}^{\frac{p-1}{2}}\frac{(p-1)!}{i(p-i)}\\
+\end{aligned}
+$$
+
+令 $A=\displaystyle\sum_{i=1}^{\frac{p-1}{2}}\frac{(p-1)!}{i(p-i)}$，那么
+
+$$
+S=\dfrac{pA}{B}=\dfrac{A_p}{B_p}\implies A_pB=p\cdot AB_p
+$$
+
+因为 $p$ 是素数而且 $p\nmid B$，因此由 [欧几里德引理]({{ site.baseurl }}{% post_url 2018-09-19-AFINT-Chap-7 %}#euclids-lemma) 可知 $p\mid A_p$。
+
+### (b)
+
+- *找出 $A_p\pmod {p^2}$ 的值并证明。* 
+
+尝试为不同的素数 $A_p$ 可以猜测 $A_p\equiv 0\pmod {p^2}$。接着上一个问题，由于 $A_p=\frac{pA}{B}\cdot B_p$，第二个因子 $p$ 只能出现在 $A$，于是目标变为证明 $p\mid A$。
+
+考虑每一项 $\frac{(p-1)!}{i(p-i)}\pmod p$ 的值，令 $x\equiv\frac{(p-1)!}{i(p-i)}\pmod p$，因此
+
+$$
+i(p-i)x \equiv(p-1)!\pmod p
+$$
+
+应用[威尔逊定理]({{ site.baseurl }}{% post_url 2018-10-04-AFINT-Chap-8~9 %}#wilsons-theorem) 
+
+$$
+-i^2x\equiv -1\pmod p
+$$
+
+因此 $x\equiv (i^2)^{-1}\pmod p$，即 $\frac{(p-1)!}{i(p-i)}\equiv (i^2)^{-1}\pmod p$。所以
+
+$$
+\begin{aligned}
+    2A\equiv &A+A\equiv2\displaystyle\sum_{i=1}^{\frac{p-1}{2}}\frac{(p-1)!}{i(p-i)}\\
+    \equiv&(1^2)^{-1}+(2^2)^{-1}+\ldots+((\frac{p-1}{2})^2)^{-1}+\\
+    &+(1^2)^{-1}+(2^2)^{-1}+\ldots+((\frac{p-1}{2})^2)^{-1}\\    
+\end{aligned}
+$$
+
+又因为 $(p-a)^2\equiv a^2\pmod p$，
+
+$$
+\begin{aligned}
+    2A\equiv&(1^2)^{-1}+(2^2)^{-1}+\ldots+((\frac{p-1}{2})^2)^{-1}+\\
+    &+((p-1)^2)^{-1}+((p-2)^2)^{-1}+\ldots+((\frac{p-1}{2}+1)^2)^{-1}\\
+    \equiv&(1^2)^{-1}+(2^2)^{-1}+\ldots+((p-1)^2)^{-1}\\
+    \equiv&(1^{-1})^2+(2^{-1})^2+\ldots+((p-1)^{-1})^2\pmod p
+\end{aligned}
+$$
+
+令 $C=\{1^{-1}, 2^{-1}, \ldots, (p-1)^{-1}\}$ 表示模 $p$ 乘法逆元的集合，同时这个集合也是一个缩系；否则意味着对于某个整数存在两个不同的模 $p$ 乘法逆元，这是不可能的。接着上面的推导过程
+
+$$
+\begin{aligned}
+    2A&\equiv(1^{-1})^2+(2^{-1})^2+\ldots+((p-1)^{-1})^2\\
+    &\equiv1^2+2^2+\ldots+(p-1)^2\\
+    &\equiv\dfrac{p(p-1)(2p-1)}{2\times3}\equiv\dfrac{p(2p^2-3p+1)}{2\times3}\pmod p\\
+\end{aligned}
+$$
+
+因为 $p^2\equiv1\pmod 3$，所以 $3\mid(2p^2-3p+1)$；又因为 $2p^2-3p+1$ 是一个偶数，可以令 $D=\frac{2p^2-3p+1}{6}$，$D$ 是一个整数，所以
+
+$$
+\begin{array}{}
+    2A\equiv p\cdot D\equiv0\pmod p\implies p\mid A & \text{, with }p\gt 2
+\end{array}
+$$
+
+因此结合(a)的结果
+
+$$
+S=1+\frac{1}{2}+\frac{1}{3}+\ldots+\frac{1}{p-1}=\dfrac{pA}{(p-1)!}=\dfrac{p^2D}{(p-1)!}
+$$
+
+$$
+\dfrac{A_p}{B_p}=\dfrac{p^2D}{(p-1)!}\implies A_p(p-1)!=p^2\cdot DB_p
+$$
+
+[欧几里德引理]({{ site.baseurl }}{% post_url 2018-09-19-AFINT-Chap-7 %}#euclids-lemma) 表示 $p^2\mid A_p$。[文章](https://www.math.uci.edu/~tchoi/notes/wolstenholme.pdf) 的证明目标是 [Wolstenholme's theorem](https://en.wikipedia.org/wiki/Wolstenholme%27s_theorem) 。
+
+## 12.4
+
+令 $a_1,a_2,\ldots,a_{\phi(m)}$ 表示在 $(1\le a_i\le m-1)$ 之间 和 $m$ 互质的整数，将以下求和
+
+$$\frac{1}{a_1}+\frac{1}{a_2}+\frac{1}{a_3}+\ldots+\frac{1}{a_{\phi(m)}}$$
+
+的写成最简分数 $\frac{A_p}{B_p}$：
+
+### (a) 
+
+- *找出 $A_p\pmod p$ 的值并证明。*
+
+过程同 12.3 类似，区别是：
+1. 证明两两模 $m$ 不同余以及求和的对象变成 $\frac{a_1a_2\ldots a_{\phi(m)}}{a_j}$
+2. 证明 $\displaystyle\sum_{i=1}^{\phi(m)}a_i\equiv \frac{1}{2}m\phi(m)\equiv 0\pmod m$
+
+### (b)
+
+- *找出 $A_p\pmod {p^2}$ 的值并证明。* 
+
+To be continued.
+
+## 12.5
+
+- _找出能整除 $n!$ 的 $p$ 的最高次幂_
+
+令 $f_p(n)=\max{\{k\mid p^k\vert n!\}}$。在自然数 $1,2,\ldots,n$ 中，能被 $p$ 整除的有
+
+$$
+p,2\cdot p,3\cdot p,\ldots,\lfloor\frac{n}{p}\rfloor\cdot  p
+$$
+
+一共 $\lfloor\frac{n}{p}\rfloor$ 个数。对上述 $\lfloor\frac{n}{p}\rfloor$ 个数各自拿出一个因子 $p$，剩下
+
+$$
+1,2,3,\ldots,\lfloor\frac{n}{p}\rfloor
+$$
+
+只要满足 $\lfloor\frac{n}{p}\rfloor\ge p$，那么在上述$\lfloor\frac{n}{p}\rfloor$ 个数中，仍然包含能整除 $p$ 的整数。这表示 
+
+$$
+f_p(n)=\big\lfloor\frac{n}{p}\big\rfloor + f_p(\big\lfloor\frac{n}{p}\big\rfloor)
+$$
+
+可见这个问题可被递归地定义。利用 $\big\lfloor\lfloor \frac{a}{b}\rfloor\cdot\frac{1}{b}\big\rfloor = \big\lfloor\frac{a}{b^2}\big\rfloor$ 展开上述递归等式得到
+
+$$
+f_p(n)=\sum_{i=1}^{\log_p(n)}{\lfloor\frac{n}{p^i}\rfloor}
+$$
+
+- _证明：假如素数 $p$ 的 $m$ 次幂整除 $n!$，那么 $m\lt \dfrac{n}{p-1}$。_
+
+
+前面的结论 $f_p(n)=\sum{\lfloor\frac{n}{p^i}\rfloor}$的每一项都小于等比数列 $\frac{n}{p^k}$；加上不等式右边的项 $\frac{n}{p-1}$的分母为 $p-1$ 容易让人联想到等比数列求和，因此
+
+$$
+\begin{aligned}
+    f_p(n)&=\sum_{i=1}^{\log_p(n)}{\lfloor\frac{n}{p^i}\rfloor}=\big\lfloor\frac{n}{p}\big\rfloor+\big\lfloor\frac{n}{p^2}\big\rfloor+\ldots+1\\
+    &\le n\cdot(\frac{1}{p}+\frac{1}{p^2}+\ldots+\frac{1}{p^{\log_p(n)}})\\
+    &=n\cdot\frac{1-(\frac{1}{p})^k}{p-1} \lt \frac{n}{p-1}
+\end{aligned}
+$$
+
+## 12.6 
+
+### (a)
+
+- _求满足 $p\equiv 1338\pmod {1115}$ 的素数 $p$。是否存在无穷多个这样的素数？_
+
+因为 
+
+$$
+p\equiv 1338\equiv 223\pmod {1115}
+$$
+
+所以可以令 $p=1115k+223$。但是因为 $1115=223\times5$，所以 $p=223\times(5k+1)$。只有当 $k=0\text{, }p=223$ 才是一个素数；这表示满足 $p\equiv 1338\pmod {1115}$ 的素数 $p$ 只有一个，不存在无穷多个满足条件的素数。
+
+### (b)
+
+- _求满足 $p\equiv 1438\pmod {1115}$ 的素数 $p$。是否存在无穷多个这样的素数？_
+
+To be continued.
