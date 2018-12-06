@@ -5,6 +5,7 @@ subtitle: "段寄存器的前世今生"
 date: 2018-11-12 21:42
 tags: 
     - Assembly
+    - Win32
 ---
 
 # Contents
