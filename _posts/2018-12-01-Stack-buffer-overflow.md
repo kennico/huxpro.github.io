@@ -358,7 +358,7 @@ function_call:
 
 ### Misc
 
-在书中(P87) dll 的初始化顺序为 ntdll->kernel32，而在这里是 ntdll->kernelbase->kernel32。虽然两个模块都能导出符号 `LoadLibraryA` 和 `ExitProcess`，但调用 `kernelbase!ExitProcess(0)` 会抛出 "Privileged instruction" 异常，加上和 `kernel32!ExitProcess` 的代码存在较大差异，显示 `kernelbase!ExitProcess` 可能不包含能发挥作用的代码。
+在书中(P87) dll 的初始化顺序为 ntdll->kernel32，而在这里是 ntdll->kernelbase->kernel32。虽然两个模块都能导出符号 `LoadLibraryA` 和 `ExitProcess`，但调用 `kernelbase!ExitProcess(0)` 会抛出 "Privileged instruction" 异常。加上和 `kernel32!ExitProcess` 的代码存在较大差异，猜测 `kernelbase!ExitProcess` 可能不包含能发挥作用的“代码”，其指针指向的内存包含杂乱无章的数据并被译码为特权指令。
 
 ![kernelbase!ExitProcess]({{ "img/stack-buffer-overflow-kernelbase-ExitProcess.png" | absolute_url }})
 
