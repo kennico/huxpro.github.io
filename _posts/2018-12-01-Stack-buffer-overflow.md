@@ -364,4 +364,4 @@ function_call:
 
 上图为 `kernelbase!ExitProcess`，下图为 `kernel32!ExitProcess`
 
-![kernel32!ExitProcess]({{ "img/stack-buffer-overflow-kernelbase-ExitProcess.png" | absolute_url }})
+![kernel32!ExitProcess]({{ "img/stack-buffer-overflow-kernel32-ExitProcess.png" | absolute_url }})
