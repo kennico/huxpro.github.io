@@ -10,10 +10,15 @@ tags:
 
 # Content
 
-用于接受输入数据的缓冲区 `char buffer[BUFFER_SIZE]` 位于栈上，如果程序没有限制输入数据的长度就会存在所谓的 _缓冲区溢出_ 风险。越过缓冲区的数据可能会 **覆盖返回地址**。攻击者可通过精心构造的输入(malformed inputs)改变程序执行流程；若 RA 被恶意代码的起始地址覆盖，在函数返回后，恶意代码将得到执行。这类恶意构造的输入称为 shellcode。利用缓冲区溢出的原理离不开两个关键因素：
-1. 不安全的字符串处理函数。比如 `strcpy`, `memcpy` ，或者自己/第三方的实现；
-2. 返回地址(RA)。函数调用结束之后，RA 从调用栈栈顶被弹出到`eip`，当前程序跳转到返回地址处的指令。
+程序在处理数据的过程中往往需要将数据存储到缓冲区，如果程序没有限制输入数据的长度就会存在所谓的 _缓冲区溢出_ 风险；攻击者可通过精心构造的输入(malformed inputs)改变程序执行流程。此外，如果缓冲区布置在 **栈** 上，越过缓冲区的数据可能会 **覆盖返回地址**，恶意代码可能得到执行。这类构造的输入称为 shellcode。
 
+利用栈缓冲区溢出攻击的原理离不开以下关键因素：
+
+1. 不安全的字符串处理函数(`strcpy`, `memcpy`, 或者自己/第三方的实现)，或
+2. 向函数传递了错误的缓冲区长度参数。比如程序员手滑将`200`打错变成`0x200`；
+3. 返回地址(RA)。函数调用结束之后，RA 从调用栈栈顶被弹出到`eip`，当前程序跳转到返回地址处的指令。
+
+在 x86 下，[栈向下生长](https://stackoverflow.com/a/664779/8706476)（从高地址到低地址），当前函数的返回地址高于缓冲区起始地址。然而栈的生长方向和是否存在缓冲区溢出风险无关；即使将栈设置为向上生长（ARM程序在编译时可以指定栈的生长方向），攻击者仍然可以覆盖调用子函数的返回地址，详细见[wiki](https://en.wikipedia.org/wiki/Stack_buffer_overflow#Stacks_that_grow_up)。
 
 ## Overview
 
@@ -138,7 +143,7 @@ Code|Padding bytes|Address of the code
 - shellcode 位于栈上， 其指令执行顺序和栈的生长方向正好相反。为了防止 shellcode 被覆盖，要事先将栈顶“抬高”到 shellcode 之前；
 - shellcode 要避免出现能截断输入的字符：
     - `strcpy` 函数在空字符 `\x00` 处截断参数字符串；
-    - `scanf` 函数会在一些不可见字符处截断输入，比如 `\r`(`\x0D`) 和 `\v`(`\x0B`)。因此 
+    - `scanf` 函数会在一些空白字符处截断输入。[空白字符](http://www.cplusplus.com/reference/cstdio/scanf/#parameters)包括`' '`(`0x20`), `\t`(`0x09`), `\n`(`0x0A`), `\v`(`0x0B`), `\f`(`0x0C`) 和 `'\r'`(`0x0D`)
 - shellcode 的长度可以不受缓冲区长度限制。攻击者可以在 RA 之前用 `jmp` 指令跳过 RA，以防止 RA 被译码为指令。
 
 这个例子存在不足之处，比如：
@@ -213,16 +218,17 @@ Code|Padding bytes|Address of trampoline|Jump to `shellcode_start`
 
 1. `fs:[0x30]` 得到`TEB::ProcessEnvironmentBlock`，这是指向 `PEB` 结构体的 **指针**；
    - 我的[另一篇文章]({{ site.baseurl }}{% post_url 2018-11-12-Segment-registers %})记录了一些段寄存器的历史；
-2. `TEB::ProcessEnvironmentBlock` 偏移 `0xC` 为 `PEB::Ldr`，这是指向 `PEB_LDR_DATA` 结构体的 **指针**；
-3. `PEB::Ldr` 偏移 `0x1C` 是 `InInitializationOrderModuleList` 结构体。
+   - `mov eax, fs:[0x30]` 和 `mov eax, fs:[eax+0x30]` 生成的机器码不一样；前者为 `"\x64\xA1\x30\x00\x00\x00"` ，后者的机器码为 `"\x64\x8B\x40\x30"` 而且不包含截断输入的字符。连这样细微的差别都能注意到，只能说 shellcode 的作者实在是6啊。
+1. `TEB::ProcessEnvironmentBlock` 偏移 `0xC` 为 `PEB::Ldr`，这是指向 `PEB_LDR_DATA` 结构体的 **指针**；
+2. `PEB::Ldr` 偏移 `0x1C` 是 `InInitializationOrderModuleList` 结构体。
     - 这是双向链表的结点，它的成员 `Flink` 指针指向后继结点，`Blink` 指针指向前驱结点。
     - 除去这个头节点（作为 `PEB_LDR_DATA` 成员存在），其它结点是另一个结构体 `LDR_DATA_TABLE_ENTRY` 的成员；每个 `LDR_DATA_TABLE_ENTRY` 结构体都对应一个模块，包含模块名称(UTF-16)和装载基址等信息。
     - 头节点的后继节点是 ntdll 。 kernelbase 是第二个节点，kernel32 是第三个节点；但 kernel32 在书中(P87)是第二个节点，具体不同见 [Misc]({{ page.url }}#Misc)；
     - kernel32 导出 `LoadLibraryA` 和 `ExitProcess`；
-4. `InInitializationOrderModuleList:Flink` 偏移 `0x08` 是模块的**装载基址**。从装载基址开始就是模块的映像。幸运的是，和 `TEB` 以及 `PEB` 不同，PE 格式在 MSDN 上有[详细的描述](https://docs.microsoft.com/en-us/windows/desktop/debug/pe-format)。
+3. `InInitializationOrderModuleList:Flink` 偏移 `0x08` 是模块的**装载基址**。从装载基址开始就是模块的映像。幸运的是，和 `TEB` 以及 `PEB` 不同，PE 格式在 MSDN 上有[详细的描述](https://docs.microsoft.com/en-us/windows/desktop/debug/pe-format)。
     - 装载基址偏移`0x3c`处存储 PE 签名的偏移。PE 签名是一个 4 字节的数据；在这个 PE 签名之后才是 PE headers，其组织形式和二进制网络协议类似，在特定偏移处存储特定信息。
     - 从 PE 签名开始偏移`0x78` 开始是 `IMAGE_DATA_DIRECTORY` 数组，而第一项就是导出表(相对于装载基址的偏移和大小)
-5. 导出表对应 `IMAGE_EXPORT_DIRECTORY` 结构体。以下三个数据成员对应三个数组：
+4. 导出表对应 `IMAGE_EXPORT_DIRECTORY` 结构体。以下三个数据成员对应三个数组：
    - +`0x1C`：`AddressOfFunctions`，函数地址数组；
    - +`0x20`：`AddressOfNames`，函数名称数组；
    - +`0x24`：`AddressOfNameOrdinals`，数组元素是 `AddressOfNames`中对应位置的函数名，在`AddressOfFunctions`中的次序（好拗口）；
@@ -273,11 +279,17 @@ _asm {
     push esp
     xor edx, edx
 
-    mov ebx, fs:[0x30]          // ebx = address of peb
-    mov ecx, [ebx + 0x0c]       // ecx = address of ldr
-    mov ecx, [ecx + 0x1c]       // ecx = address of the first node
-    mov ecx, [ecx]              // ecx = address of the second node
-    mov ecx, [ecx]              // ecx = address of the third node
+    // Instead of "mov ebx, fs:[0x30]"
+    // ebx = address of peb
+    mov ebx, fs:[edx+0x30]          
+     // ecx = address of ldr
+    mov ecx, [ebx + 0x0c]      
+    // ecx = address of 1st node: ntdll
+    mov ecx, [ecx + 0x1c]       
+    // ecx = address of 2nd second node: kernelbase
+    mov ecx, [ecx]              
+    // ecx = address of 3rd third node: kernel32
+    mov ecx, [ecx]              
     mov ebp, [ecx + 0x08]       // ebp = base address of the kernelbase.dll image
 
 find_lib_functions:        
