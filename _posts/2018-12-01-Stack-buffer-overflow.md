@@ -67,6 +67,7 @@ void foo(const char* str) {
 
 - 关闭 ASLR([Address space layout randomization](https://en.wikipedia.org/wiki/Address_space_layout_randomization))，让目标程序的映像装载到固定基址`0x400000`：
     - "Linker" > "Advanced" > "[Randomized Base Address](https://stackoverflow.com/a/9561294/8706476)" : `/DYNAMICBASE:NO` 
+    - [ASLR](https://docs.microsoft.com/en-us/cpp/build/reference/dynamicbase-use-address-space-layout-randomization?view=vs-2017) 引入自 Windows Vista
 - 关闭运行时栈帧错误检查：
     - "C/C++" > "Code Generation" > "Basic Runtime Checks" : `/RTCu` 或空白。
     - `/RTCs` 会在函数返回之前引入 `__RTC_CheckEsp`
