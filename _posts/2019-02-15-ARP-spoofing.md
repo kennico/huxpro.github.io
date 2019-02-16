@@ -107,19 +107,26 @@ if __name__ == '__main__':
         print('httpd exits.')
 ```
 
-服务器监听 127.0.0.1:8080。接下来是最重要的一步：将拦截到的 HTTP 流量转发到服务器 demo:
+服务器监听 127.0.0.1:8080。因为服务器 demo 监听 127.0.0.1，需要配置系统以允许转发所谓的“火星数据包([Martian packet](https://en.wikipedia.org/wiki/Martian_packet), 数据包的发送者 IP 显示这个数据包应该从另外一个接口得到)”。192.168.43.24是接口 wlan0 的IP的地址，而 127.0.0.1 是属于 lo 的 IP 地址
+
+```sh
+sudo sysctl -w net.ipv4.conf.wlan0.route_localnet=1
+sudo sysctl -w net.ipv4.conf.all.route_localnet=1
+```
+
+接下来是最重要的一步：将拦截到的 HTTP 流量转发到服务器 demo:
 
 ```shell
 sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp -s 192.168.43.79 --dport 80 -j DNAT --to-destination 127.0.0.1:8080
 ```
-这里的 `iptables` 添加一个规则到内核的 NAT 表(`-t nat`)，将规则追加(`-A`)到 PREROUTING 匹配链，表示在选择路由之前检查满足的条件的数据包：
+这里的 `iptables` 追加一个规则到内核的 NAT 表(`-t nat`) 的 PREROUTING 匹配链。PREROUTING 表示在选择路由之前检查满足的条件的数据包：
 
 - 来自 wlan0 (`-i`)
 - 协议为 TCP (`-p`)
 - 发送者为 192.168.43.79 (`-s`)
 - 接收者端口为 80
 
-一旦匹配成功就采取行动(`-j`)，将数据包转发到 127.0.0.1:8080(`-DNAT`表示更改接收者的地址)。使用 `iptables` 还有一个好处，一些原本需要绑定到低端口(<1024)服务器，现在可以绑定到高端口，因此服务器本身 **不需要 root 权限** 。
+一旦匹配成功就采取行动(`-j`)，将数据包转发到 127.0.0.1:8080(`-DNAT`表示更改接收者的地址)。使用 `iptables` 还有一个好处，一些原本需要绑定到低端口(<1024)服务器，现在可以绑定到高端口，因此服务器本身 **不需要 root 权限** 。(之前花了两周时间最后也没有实现类似的端口转发功能，到头来一个下午查的一个命令就解决问题了Orz)
 
 ```
 kenny@kenny-X450LD:~$ sudo iptables -t nat -L -v
@@ -129,7 +136,7 @@ Chain PREROUTING (policy ACCEPT 657 packets, 42591 bytes)
 ...
 ```
 
-下图为受害者设备用 chrome 访问 8.8.8.8 的截图（众所周知 8.8.8.8 是谷歌公共 DNS），可见 HTML 页面即为脚本里的字符串内容：
+上边列出了已有的规则。下图为受害者设备用 chrome 访问 8.8.8.8 的截图（众所周知 8.8.8.8 是谷歌公共 DNS），可见 HTML 页面即为脚本里的字符串内容：
 
 ![HTTP]({{ "img/arp-spoofing-http.png" | absolute_url }})
 
