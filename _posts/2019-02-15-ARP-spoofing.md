@@ -50,19 +50,7 @@ Host is up.
 Nmap done: 256 IP addresses (3 hosts up) scanned in 11.26 seconds
 ```
 
-如果不使用 root 权限， `nmap` 会显示设备的名称而不是 MAC 地址。接下来选择 192.168.43.79(24:1B:7A:10:14:FC) 作为受害者。
-
-由于我实现的程序使用系统 ARP 缓存，需要先添加这个记录到 ARP 缓存（同样需要 root 权限）：
-
-```
-kenny@kenny-X450LD:~$ sudo arp -s 192.168.43.79 24:1B:7A:10:14:FC
-kenny@kenny-X450LD:~$ arp -n
-Address                  HWtype  HWaddress           Flags Mask            Iface
-192.168.43.79            ether   24:1b:7a:10:14:fc   CM                    wlan0
-192.168.43.1             ether   22:39:56:76:90:6b   C                     wlan0
-```
-
-接下来运行发送 ARP 应答的程序。libpcap 的 `pcap_open_live` 函数需要 root 权限：
+如果不使用 root 权限， `nmap` 会显示设备的名称而不是 MAC 地址。接下来选择 192.168.43.79(24:1B:7A:10:14:FC) 作为受害者，运行发送 ARP 应答的程序。libpcap 的 `pcap_open_live` 函数需要 root 权限：
 
 ```
 kenny@kenny-X450LD:~$ sudo ./arp-spoof -e wlan0 192.168.43.79
